@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMI and BMR Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        h1, h2 {
+            color: #333;
+            text-align: center;
+        }
+        .section {
+            background: #fff;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .conversion-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>BMI and BMR Calculator</h1>
+
+    <div class="section">
+        <h2>Calculate BMI and BMR</h2>
+        <label for="unit">Select Unit:</label>
+        <select id="unit" onchange="updateLabels()">
+            <option value="metric">Metric (kg, cm)</option>
+            <option value="imperial">Imperial (lbs, inches)</option>
+        </select>
+
+        <label for="weight">Weight:</label>
+        <input type="number" id="weight" placeholder="Enter weight" step="any">
+
+        <label for="height">Height:</label>
+        <input type="number" id="height" placeholder="Enter height" step="any">
+
+        <label for="age">Age:</label>
+        <input type="number" id="age" placeholder="Enter age">
+
+        <label for="gender">Gender:</label>
+        <select id="gender">
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+        </select>
+
+        <button onclick="calculate()">Calculate</button>
+        <div id="result"></div>
+    </div>
+
+    <div class="section">
+        <h2>Unit Conversions</h2>
+        <div class="conversion-grid">
+            <div>
+                <label for="kgToLbs">Kilograms to Pounds:</label>
+                <input type="number" id="kgToLbs" placeholder="Enter kg" step="any" oninput="convertKgToLbs()">
+                <p id="kgToLbsResult"></p>
+            </div>
+            <div>
+                <label for="lbsToKg">Pounds to Kilograms:</label>
+                <input type="number" id="lbsToKg" placeholder="Enter lbs" step="any" oninput="convertLbsToKg()">
+                <p id="lbsToKgResult"></p>
+            </div>
+            <div>
+                <label for="cmToIn">Centimeters to Inches:</label>
+                <input type="number" id="cmToIn" placeholder="Enter cm" step="any" oninput="convertCmToIn()">
+                <p id="cmToInResult"></p>
+            </div>
+            <div>
+                <label for="inToCm">Inches to Centimeters:</label>
+                <input type="number" id="inToCm" placeholder="Enter inches" step="any" oninput="convertInToCm()">
+                <p id="inToCmResult"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateLabels() {
+            const unit = document.getElementById('unit').value;
+            document.getElementById('weight').placeholder = unit === 'metric' ? 'Enter weight (kg)' : 'Enter weight (lbs)';
+            document.getElementById('height').placeholder = unit === 'metric' ? 'Enter height (cm)' : 'Enter height (inches)';
+        }
+
+        function calculate() {
+            const unit = document.getElementById('unit').value;
+            const weight = parseFloat(document.getElementById('weight').value);
+            const height = parseFloat(document.getElementById('height').value);
+            const age = parseInt(document.getElementById('age').value);
+            const gender = document.getElementById('gender').value;
+            let result = '';
+
+            if (!weight || !height || !age) {
+                result = 'Please fill in all fields.';
+            } else {
+                let bmi, bmr;
+                if (unit === 'metric') {
+                    bmi = weight / ((height / 100) ** 2);
+                    if (gender === 'male') {
+                        bmr = 10 * weight + 6.25 * height - 5 * age + 5;
+                    } else {
+                        bmr = 10 * weight + 6.25 * height - 5 * age - 161;
+                    }
+                } else {
+                    bmi = (weight / (height ** 2)) * 703;
+                    if (gender === 'male') {
+                        bmr = 4.536 * weight + 15.88 * height - 5 * age + 5;
+                    } else {
+                        bmr = 4.536 * weight + 15.88 * height - 5 * age - 161;
+                    }
+                }
+
+                let bmiCategory;
+                if (bmi < 18.5) bmiCategory = 'Underweight';
+                else if (bmi < 25) bmiCategory = 'Normal weight';
+                else if (bmi < 30) bmiCategory = 'Overweight';
+                else bmiCategory = 'Obese';
+
+                result = `
+                    <strong>BMI:</strong> ${bmi.toFixed(1)} (${bmiCategory})<br>
+                    <strong>BMR:</strong> ${bmr.toFixed(0)} calories/day
+                `;
+            }
+
+            document.getElementById('result').innerHTML = result;
+        }
+
+        function convertKgToLbs() {
+            const kg = parseFloat(document.getElementById('kgToLbs').value);
+            document.getElementById('kgToLbsResult').innerText = kg ? `${(kg * 2.20462).toFixed(2)} lbs` : '';
+        }
+
+        function convertLbsToKg() {
+            const lbs = parseFloat(document.getElementById('lbsToKg').value);
+            document.getElementById('lbsToKgResult').innerText = lbs ? `${(lbs / 2.20462).toFixed(2)} kg` : '';
+        }
+
+        function convertCmToIn() {
+            const cm = parseFloat(document.getElementById('cmToIn').value);
+            document.getElementById('cmToInResult').innerText = cm ? `${(cm / 2.54).toFixed(2)} inches` : '';
+        }
+
+        function convertInToCm() {
+            const inches = parseFloat(document.getElementById('inToCm').value);
+            document.getElementById('inToCmResult').innerText = inches ? `${(inches * 2.54).toFixed(2)} cm` : '';
+        }
+
+        // Initialize labels on page load
+        updateLabels();
+    </script>
+</body>
+</html>
